@@ -1,10 +1,7 @@
 require('dotenv').config({ silent: true });
 const Telegraf = require('telegraf');
 const { Markup, Telegram } = Telegraf;
-const axios = require('axios');
 const redisClient = require('redis').createClient(process.env.REDIS_URL);
-
-const logger = require('./logger');
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const telegram = new Telegram(process.env.BOT_TOKEN);
