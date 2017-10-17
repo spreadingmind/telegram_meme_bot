@@ -1,0 +1,16 @@
+{
+  "name": "fb-connector",
+  "version": "0.0.1",
+  "description": "Facebook api connector",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "dependencies": {
+    "dotenv": "4.0.0",
+    "fb": "2.0.0",
+    "redis": "^2.8.0"
+  },
+  "author": "6otan1dze@gmail.com",
+  "license": "MIT"
+}
