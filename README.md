@@ -1,20 +1,23 @@
 # Telegram Meme Bot
-A telegram bot that posts popular memes from different sources
+Telegram bot that posts popular memes from different sources.
+
+![A _whole lot_ of memes.](http://i0.kym-cdn.com/photos/images/facebook/000/862/065/0e9.jpg)
+
 
 # Environment variables
 ## Global settings
-- `BOT_TOKEN` - telegram bot token
-- `REDIS_URL` - redis url for caching memos
-- `REDIS_CHANNEL` - redis channel for read memos
-- `TELEGRAM_CHANNEL` - ID of telegram channel where bot is located
+- `BOT_TOKEN` - Telegram bot token
+- `REDIS_URL` - Redis instance URL 
+- `REDIS_CHANNEL` - Redis channel to post messages to
+- `TELEGRAM_CHANNEL` - Telegram channel ID to post memes to 
 
 ## Facebook
 - `APP_ID` - Facebook application id
-- `SECRET_KEY` - secret key for facebook appication.
-- `REDIS_URL` - url for cache data and publish memos
-- `REDIS_CHANNEL` - redis channel for publish memos
-- `START_TIMEOUT_MIN` - timeout for starting application
-- `REQUEST_INTERVAL_MIN` - interval for request new memos
+- `SECRET_KEY` - secret key for Facebook appication
+- `REDIS_URL` - Redis instance URL
+- `REDIS_CHANNEL` - Redis channel to post messages to
+- `REQUEST_INTERVAL_MIN` - API polling interval
+- `START_TIMEOUT_MIN` - Worker start timeout 
 
 ## Twitter
 - `TWITTER_CONSUMER_KEY` - Twitter consumer key, can be obtained [here](https://apps.twitter.com)
@@ -25,3 +28,14 @@ A telegram bot that posts popular memes from different sources
 - `REDIS_CHANNEL` - Redis channel to post messages to
 - `REQUEST_INTERVAL_MIN` - API polling interval
 - `START_TIMEOUT_MIN` - Worker start timeout
+
+## Reddit
+
+- `REDDIT_AGENT` - Reddit app name&version
+- `REDDIT_CLIENT` - Reddit app id
+- `REDDIT_SECRET`- Reddit app secret token
+- `REDDIT_USER` - Your r/username
+- `REDIS_URL` - Redis instance URL 
+- `REDIS_CHANNEL` - Redis channel to post messages to
+- `REQUEST_INTERVAL_MIN` - API polling interval
+- `START_TIMEOUT_MIN` - Worker start timeout 
