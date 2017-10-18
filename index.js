@@ -53,3 +53,7 @@ function safeJSONParse(json) {
     return object;
 }
 
+function addNew(source, channel) {
+    redisClient.hmset(source, channel)
+}
+

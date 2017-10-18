@@ -43,12 +43,5 @@ function addExistingSources() {
     }
 }
 
-
-
-function addNew(source, channel) {
-    redisClient.hmset(source, channel)
-}
-
-
 //run once to add in new channel
 addExistingSources();
