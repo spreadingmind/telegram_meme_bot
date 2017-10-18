@@ -1,8 +1,9 @@
 require('dotenv').config({ silent: true });
+const Redis = require('redis');
 const Telegraf = require('telegraf');
 const { Markup, Telegram } = Telegraf;
-const subscriber = require('redis').createClient(process.env.REDIS_URL);
-const publisher = require('redis').createClient(process.env.REDIS_URL);
+const subscriber = Redis.createClient(process.env.REDIS_URL);
+const publisher = Redis.createClient(process.env.REDIS_URL);
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const telegram = new Telegram(process.env.BOT_TOKEN);
@@ -29,7 +30,7 @@ bot.hears('Get current VK memes top 10', ctx => {
     ctx.reply('Get ready for the top!');
 
     let limit = 10;
-    const commandSubscriber = require('redis').createClient(process.env.REDIS_URL);
+    const commandSubscriber = Redis.createClient(process.env.REDIS_URL);
 
     sendCommand('vk', 'top', {get: limit});
 
