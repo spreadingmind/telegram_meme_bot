@@ -1,7 +1,8 @@
 # Telegram Meme Bot
-Telegram bot that posts popular memes from different sources.
+Telegram bot that posts popular memes from different sources
+_A whole lot of memes_
 
-![A _whole lot_ of memes.](http://i0.kym-cdn.com/photos/images/facebook/000/862/065/0e9.jpg)
+![img](http://i0.kym-cdn.com/photos/images/facebook/000/862/065/0e9.jpg)
 
 
 # Environment variables
