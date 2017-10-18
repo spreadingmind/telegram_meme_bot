@@ -76,8 +76,11 @@ function safeJSONParse(json) {
     return object;
 }
 
+//add new source to redis hash
 function addNew(source, channel) {
-    redisClient.hmset(source, channel);
+    let chan = {};
+    chan[channel] = 100;
+    redisClient.hmset(source, chan);
 }
 
 function sendCommand(serviceName, command, parameters) {
