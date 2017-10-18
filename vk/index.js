@@ -11,7 +11,26 @@ const groupIds = [
 
 let cache = {};
 
-const redisClient = require('redis').createClient(process.env.REDIS_URL);
+const subscriber = require('redis').createClient(process.env.REDIS_URL);
+const publisher = require('redis').createClient(process.env.REDIS_URL);
+
+subscriber.subscribe('vk_commands');
+subscriber.on('message', (channel, message) => {
+    const messageData = safeJSONParse(message);
+
+    if (messageData.command == 'top') {
+        getTop(messageData.parameters.get).then((top) => {
+            publisher.publish(
+                'vk_top',
+                JSON.stringify(
+                    { top: top }
+                )
+            );
+        });
+    }
+
+    console.log(messageData);
+});
 
 function getPhotos(id) {
     let startTime = new Date().getTime();
@@ -82,9 +101,9 @@ function getVkMeme() {
             .then(() => {
                 cache[actualMeme.id] = actualMeme.src;
 
-                redisClient.set(`vk_${actualMeme.id}`, JSON.stringify(actualMeme), 'EX', 24 * 60 * 60);
+                publisher.set(`vk_${actualMeme.id}`, JSON.stringify(actualMeme), 'EX', 24 * 60 * 60);
 
-                redisClient.publish(
+                publisher.publish(
                     process.env.REDIS_CHANNEL,
                     JSON.stringify(
                         { text: actualMeme.src }
@@ -102,7 +121,7 @@ function getVkMeme() {
 
 function isCached(id) {
     return new Promise((resolve, reject) => {
-        redisClient.get(`vk_${id}`, (err, value) => {
+        subscriber.get(`vk_${id}`, (err, value) => {
             if (value) {
                 reject();
             } else {
@@ -124,6 +143,19 @@ function buildCache() {
             });
     });
 }
+
+function safeJSONParse(json) {
+    let object;
+    try {
+        object = JSON.parse(json);
+    } catch (err) {
+        console.error(err);
+        object = {};
+    }
+
+    return object;
+}
+
 
 buildCache();
 

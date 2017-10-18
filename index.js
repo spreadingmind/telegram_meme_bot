@@ -1,7 +1,9 @@
 require('dotenv').config({ silent: true });
+const Redis = require('redis');
 const Telegraf = require('telegraf');
 const { Markup, Telegram } = Telegraf;
-const redisClient = require('redis').createClient(process.env.REDIS_URL);
+const subscriber = Redis.createClient(process.env.REDIS_URL);
+const publisher = Redis.createClient(process.env.REDIS_URL);
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const telegram = new Telegram(process.env.BOT_TOKEN);
@@ -13,7 +15,7 @@ const inlineMessageRatingKeyboard = [[
 
 bot.command('start', ({ reply }) => {
     return reply('Hi, you can add a new channel', Markup
-        .keyboard([['Add channel']])
+        .keyboard([['Add channel'], ['Get current VK memes top 10']])
         .oneTime()
         .resize()
         .extra()
@@ -24,10 +26,31 @@ bot.hears('Add channel', ctx => {
     return ctx.reply('Sorry nothing to do!');
 });
 
+bot.hears('Get current VK memes top 10', ctx => {
+    ctx.reply('Get ready for the top!');
+
+    let limit = 10;
+    const commandSubscriber = Redis.createClient(process.env.REDIS_URL);
+
+    sendCommand('vk', 'top', {get: limit});
+
+    commandSubscriber.subscribe('vk_top');
+    commandSubscriber.on('message', (channel, message) => {
+
+        const messageData = safeJSONParse(message);
+
+        messageData.top.forEach((item, index) => {
+            setTimeout(() => ctx.reply(`#${index + 1} \nLikes: ${item.likes} \n${item.src}`), 1000 * index);
+        });
+    });
+
+    setTimeout(() => commandSubscriber.quit(), 1000 * limit);
+});
+
 bot.startPolling();
 
-redisClient.subscribe(process.env.REDIS_CHANNEL);
-redisClient.on('message', (channel, message) => {
+subscriber.subscribe(process.env.REDIS_CHANNEL);
+subscriber.on('message', (channel, message) => {
     const messageData = safeJSONParse(message);
 
     telegram.sendMessage(
@@ -54,6 +77,15 @@ function safeJSONParse(json) {
 }
 
 function addNew(source, channel) {
-    redisClient.hmset(source, channel)
+    redisClient.hmset(source, channel);
+}
+
+function sendCommand(serviceName, command, parameters) {
+    publisher.publish(
+        `${serviceName}_commands`,
+        JSON.stringify(
+            { command: command, parameters: parameters }
+        )
+    );
 }
 
