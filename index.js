@@ -76,6 +76,10 @@ function safeJSONParse(json) {
     return object;
 }
 
+function addNew(source, channel) {
+    redisClient.hmset(source, channel);
+}
+
 function sendCommand(serviceName, command, parameters) {
     publisher.publish(
         `${serviceName}_commands`,
