@@ -36,6 +36,7 @@ _A whole lot of memes_.
 - `REDDIT_CLIENT` - Reddit app id
 - `REDDIT_SECRET`- Reddit app secret token
 - `REDDIT_USER` - Your r/username
+- `REDDIT_PASS` - Your r/pass   
 - `REDIS_URL` - Redis instance URL 
 - `REDIS_CHANNEL` - Redis channel to post messages to
 - `REQUEST_INTERVAL_MIN` - API polling interval
