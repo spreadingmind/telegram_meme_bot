@@ -7,6 +7,14 @@ const groupIds = [
                     "-25089415", // vk.com/mem1001
                     "-35182135", // vk.com/atasru
                     "-92337511", // vk.com/abstract_memes
+                    "-131489096", // vk.com/weirdkerneltricks
+                    "-143197468", // vk.com/russianmediamemes
+                    "-111920468", // vk.com/neomemeral
+                    "-145473661", // vk.com/memeasbehavior
+                    "-149905440", // vk.com/postmodern_memes
+                    "-50177168", // vk.com/leftradicalmuslesplatinum
+                    "-124374483", // vk.com/navalniymem
+                    "-149919976", // vk.com/anarchytranshum
                 ];
 
 let cache = {};
@@ -47,7 +55,8 @@ function getPhotos(id) {
                     resultMemes.push({
                             id: item.pid,
                             src: item.src_big,
-                            likes: item.likes.count
+                            likes: item.likes.count,
+                            source: id
                     });
                 }
             });
@@ -61,29 +70,31 @@ function getTop(limit = 100) {
     let allMemes = [];
     let allPromises = [];
 
-    groupIds.forEach((id) => {
-        allPromises.push(getPhotos(id));
-    });
-
-    return Promise.all(allPromises).then((results) => {
-        results.forEach((result) => {
-            allMemes = allMemes.concat(result);
+    return updateSources('vk').then((sources) => {
+        sources.forEach((id) => {
+            allPromises.push(getPhotos(id));
         });
 
-        return allMemes.sort((a, b) => {
-            if (a.likes > b.likes) {
-                return -1;
-            }
-            if (a.likes < b.likes) {
-                return 1;
-            }
-            return 0;
-        }).slice(0, limit);
+        return Promise.all(allPromises).then((results) => {
+            results.forEach((result) => {
+                allMemes = allMemes.concat(result);
+            });
+
+            return allMemes.sort((a, b) => {
+                if (a.likes > b.likes) {
+                    return -1;
+                }
+                if (a.likes < b.likes) {
+                    return 1;
+                }
+                return 0;
+            }).slice(0, limit);
+        });
     });
+
 }
 
 function getVkMeme() {
-    console.log("getVkMeme");
     getTop(200).then((top) => {
         let actualMeme = null;
 
@@ -93,7 +104,6 @@ function getVkMeme() {
         });
 
         if (cache[actualMeme.id]) {
-            console.log("cache[actualMeme.id] = ", cache[actualMeme.id]);
             return;
         }
 
@@ -106,7 +116,11 @@ function getVkMeme() {
                 publisher.publish(
                     process.env.REDIS_CHANNEL,
                     JSON.stringify(
-                        { text: actualMeme.src }
+                        {
+                            text: actualMeme.src,
+                            source: 'twitter',
+                            channel: actualMeme.source,
+                        }
                     )
                 );
 
@@ -156,13 +170,29 @@ function safeJSONParse(json) {
     return object;
 }
 
+function updateSources(channel) {
+    let sources = [];
+
+    return new Promise((resolve, reject) => {
+        publisher.hkeys(channel, (err, value) => {
+            if (value) {
+                value.forEach((source, i) => {
+                    sources.push(source);
+                });
+                resolve(sources);
+            } else {
+                reject(groupIds);
+            }
+        });
+    });
+}
 
 buildCache();
 
 setTimeout(() => {
     setInterval(() => {
         getVkMeme();
-    }, process.env.REQUEST_INTERVAL_MIN * 60 * 1000);
-}, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
+    }, process.env.REQUEST_INTERVAL_MIN * 60 * 10);
+}, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 10);
 
 
