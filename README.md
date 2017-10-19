@@ -40,4 +40,11 @@ _A whole lot of memes_.
 - `REDIS_URL` - Redis instance URL 
 - `REDIS_CHANNEL` - Redis channel to post messages to
 - `REQUEST_INTERVAL_MIN` - API polling interval
-- `START_TIMEOUT_MIN` - Worker start timeout 
+- `START_TIMEOUT_MIN` - Worker start timeout
+
+## Vkontakte
+
+- `REDIS_URL` - Redis instance URL
+- `REDIS_CHANNEL` - Redis channel to post messages to
+- `REQUEST_INTERVAL_MIN` - API polling interval
+- `START_TIMEOUT_MIN` - Worker start timeout
