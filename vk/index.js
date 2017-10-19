@@ -192,7 +192,7 @@ buildCache();
 setTimeout(() => {
     setInterval(() => {
         getVkMeme();
-    }, process.env.REQUEST_INTERVAL_MIN * 60 * 10);
-}, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 10);
+    }, process.env.REQUEST_INTERVAL_MIN * 60 * 1000);
+}, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
 
 
