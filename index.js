@@ -48,33 +48,11 @@ subscriber.subscribe(process.env.REDIS_CHANNEL);
 subscriber.on('message', (channel, message) => {
     const messageData = safeJSONParse(message);
 
-    const inlineMessageRatingKeyboard = [[
-        {
-            text: '👎',
-            callback_data: JSON.stringify({ value: -1, source: messageData.source, channel: messageData.channel })
-        },
-        {
-            text: '👍',
-            callback_data: JSON.stringify({ value: 1, source: messageData.source, channel: messageData.channel })
-        },
-    ]];
-
     telegram.sendMessage(
         process.env.TELEGRAM_CHANNEL,
         messageData.text,
-        Object.assign(
-            {},
-            messageData.options,
-            {
-                reply_markup: JSON.stringify({ inline_keyboard: inlineMessageRatingKeyboard }),
-            }
-        )
+        messageData.options
     );
-});
-
-bot.on('callback_query', (callbackQuery) => {
-    console.log(callbackQuery.update.callback_query.data);
-    callbackQuery.answerCallbackQuery();
 });
 
 function safeJSONParse(json) {
@@ -89,7 +67,7 @@ function safeJSONParse(json) {
     return object;
 }
 
-//add new source to redis hash
+// add new source to redis hash
 function addNew(source, channel) {
     let chan = {};
     chan[channel] = 100;

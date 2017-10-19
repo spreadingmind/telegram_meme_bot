@@ -18,7 +18,6 @@ let meme_subreddits = [
     'funny',
     'lol',
     'FreshMemes'
-
 ];
 
 function getTops(subr) {

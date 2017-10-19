@@ -2,15 +2,15 @@ require('dotenv').config({ silent: true });
 const axios = require('axios');
 
 const groupIds = [
-                    "-45745333", // vk.com/4ch
-                    "-31480508", // vk.com/pikabu
-                    "-131489096", // vk.com/weirdkerneltricks
-                    "-111920468", // vk.com/neomemeral
-                    "-149905440", // vk.com/postmodern_memes
-                    "-124374483", // vk.com/navalniymem
-                    "-149919976", // vk.com/anarchytranshum
-                    "-32041317", // vk.com/ru9gag
-                ];
+    "-45745333", // vk.com/4ch
+    "-31480508", // vk.com/pikabu
+    "-131489096", // vk.com/weirdkerneltricks
+    "-111920468", // vk.com/neomemeral
+    "-149905440", // vk.com/postmodern_memes
+    "-124374483", // vk.com/navalniymem
+    "-149919976", // vk.com/anarchytranshum
+    "-32041317", // vk.com/ru9gag
+];
 
 let cache = {};
 
@@ -48,10 +48,10 @@ function getPhotos(id) {
             response.data.response.forEach((item) => {
                 if (item.created > startTime) {
                     resultMemes.push({
-                            id: item.pid,
-                            src: item.src_big,
-                            likes: item.likes.count,
-                            source: id
+                        id: item.pid,
+                        src: item.src_big,
+                        likes: item.likes.count,
+                        source: id
                     });
                 }
             });
@@ -86,7 +86,6 @@ function getTop(limit = 100) {
             }).slice(0, limit);
         });
     });
-
 }
 
 function getVkMeme() {
@@ -113,7 +112,7 @@ function getVkMeme() {
                     JSON.stringify(
                         {
                             text: actualMeme.src,
-                            source: 'twitter',
+                            source: 'vk',
                             channel: actualMeme.source,
                         }
                     )
@@ -145,11 +144,12 @@ function buildCache() {
 
         top.forEach((meme) => {
             isCached(meme.id)
-                .then(() => {})
+                .then(() => {
+                })
                 .catch(() => {
                     cache[meme.id] = meme.src;
                 });
-            });
+        });
     });
 }
 
