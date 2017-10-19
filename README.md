@@ -5,6 +5,8 @@ _A whole lot of memes_.
 ![img](https://cs5.pikabu.ru/images/previews_comm/2015-12_3/1450010981152156326.jpg)
 
 
+Made in terms of BOTON Hackathon, by [Bekitzur](http://bekitzur.com/) team 
+
 # Environment variables
 ## Global settings
 - `BOT_TOKEN` - Telegram bot token
