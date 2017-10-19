@@ -20,7 +20,7 @@ sources = {
         'wholesomememes': 100
     },
     'twitter': {
-        'chuck_factsmedievalreacts': 100,
+        'chuck_facts': 100,
         'freememeskids': 100,
         'memecenter': 100,
         'memesonhistory': 100,
