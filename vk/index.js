@@ -15,6 +15,7 @@ const groupIds = [
                     "-50177168", // vk.com/leftradicalmuslesplatinum
                     "-124374483", // vk.com/navalniymem
                     "-149919976", // vk.com/anarchytranshum
+                    "-32041317", // vk.com/ru9gag
                 ];
 
 let cache = {};
