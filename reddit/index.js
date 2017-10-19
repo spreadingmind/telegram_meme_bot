@@ -9,17 +9,17 @@ const reddit_app = new snoowrap({
     username: process.env.reddit_user,
     password: process.env.reddit_pass
 });
-
-let meme_subreddits = [
-    'memes',
-    'heprotecbutalsoattac',
-    'MemeEconomy',
-    'wholesomememes',
-    'funny',
-    'lol',
-    'FreshMemes'
-
-];
+//
+// let meme_subreddits = [
+//     'memes',
+//     'heprotecbutalsoattac',
+//     'MemeEconomy',
+//     'wholesomememes',
+//     'funny',
+//     'lol',
+//     'FreshMemes'
+//
+// ];
 
 function getTops(subr) {
     return reddit_app.getSubreddit(subr).getTop({time: 'hour'}).catch((error) => {
@@ -28,9 +28,19 @@ function getTops(subr) {
     });
 }
 
+
+function getRedditChannels() {
+    return new Promise((resolve, reject) => {
+        redisClient.hkeys('reddit', (err, data) => {
+            resolve(!!data);
+        })
+    });
+}
+
 function getAll(channels) {
     let promises = [];
     let allMemes = [];
+
     channels.forEach((item) => {
         promises.push(getTops(item));
     });
@@ -50,15 +60,18 @@ function getAll(channels) {
 }
 
 function sortAndPush() {
-    getAll(meme_subreddits).then((topmemes) => {
-        defineTop(topmemes);
+    getRedditChannels().then((channels) => {
+        getAll(channels).then((topmemes) => {
+            defineTop(topmemes);
 
-        //request timeout
+            //request timeout
 
-        setTimeout(() => {
-            sortAndPush();
-        }, parseInt(process.env.REQUEST_INTERVAL_MIN) * 60 * 1000);
+            setTimeout(() => {
+                sortAndPush();
+            }, parseInt(process.env.REQUEST_INTERVAL_MIN) * 60 * 1000);
+        });
     });
+
 }
 
 
@@ -99,8 +112,9 @@ function publish(message) {
 }
 
 // start timeout
-setTimeout(() => {
-    sortAndPush();
-}, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
+// setTimeout(() => {
+//     sortAndPush();
+// }, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
 
 
+sortAndPush();
