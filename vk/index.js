@@ -4,15 +4,9 @@ const axios = require('axios');
 const groupIds = [
                     "-45745333", // vk.com/4ch
                     "-31480508", // vk.com/pikabu
-                    "-25089415", // vk.com/mem1001
-                    "-35182135", // vk.com/atasru
-                    "-92337511", // vk.com/abstract_memes
                     "-131489096", // vk.com/weirdkerneltricks
-                    "-143197468", // vk.com/russianmediamemes
                     "-111920468", // vk.com/neomemeral
-                    "-145473661", // vk.com/memeasbehavior
                     "-149905440", // vk.com/postmodern_memes
-                    "-50177168", // vk.com/leftradicalmuslesplatinum
                     "-124374483", // vk.com/navalniymem
                     "-149919976", // vk.com/anarchytranshum
                     "-32041317", // vk.com/ru9gag
