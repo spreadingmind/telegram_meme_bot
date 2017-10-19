@@ -27,9 +27,19 @@ function getTops(subr) {
     });
 }
 
+
+function getRedditChannels() {
+    return new Promise((resolve, reject) => {
+        redisClient.hkeys('reddit', (err, data) => {
+            resolve(data);
+        })
+    });
+}
+
 function getAll(channels) {
     let promises = [];
     let allMemes = [];
+
     channels.forEach((item) => {
         promises.push(getTops(item));
     });
@@ -49,15 +59,17 @@ function getAll(channels) {
 }
 
 function sortAndPush() {
-    getAll(meme_subreddits).then((topmemes) => {
-        defineTop(topmemes);
+    getRedditChannels().then((channels) => {
+        getAll(channels).then((topmemes) => {
+            defineTop(topmemes);
 
-        //request timeout
-
-        setTimeout(() => {
-            sortAndPush();
-        }, parseInt(process.env.REQUEST_INTERVAL_MIN) * 60 * 1000);
+            //request timeout
+            setTimeout(() => {
+                sortAndPush();
+            }, parseInt(process.env.REQUEST_INTERVAL_MIN) * 60 * 1000);
+        });
     });
+
 }
 
 
