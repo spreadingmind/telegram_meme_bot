@@ -10,16 +10,6 @@ const reddit_app = new snoowrap({
     password: process.env.reddit_pass
 });
 
-let meme_subreddits = [
-    'memes',
-    'heprotecbutalsoattac',
-    'MemeEconomy',
-    'wholesomememes',
-    'funny',
-    'lol',
-    'FreshMemes'
-];
-
 function getTops(subr) {
     return reddit_app.getSubreddit(subr).getTop({time: 'hour'}).catch((error) => {
         console.error(error);
