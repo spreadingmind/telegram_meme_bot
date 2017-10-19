@@ -9,17 +9,7 @@ const reddit_app = new snoowrap({
     username: process.env.reddit_user,
     password: process.env.reddit_pass
 });
-//
-// let meme_subreddits = [
-//     'memes',
-//     'heprotecbutalsoattac',
-//     'MemeEconomy',
-//     'wholesomememes',
-//     'funny',
-//     'lol',
-//     'FreshMemes'
-//
-// ];
+
 
 function getTops(subr) {
     return reddit_app.getSubreddit(subr).getTop({time: 'hour'}).catch((error) => {
@@ -32,7 +22,7 @@ function getTops(subr) {
 function getRedditChannels() {
     return new Promise((resolve, reject) => {
         redisClient.hkeys('reddit', (err, data) => {
-            resolve(!!data);
+            resolve(data);
         })
     });
 }
@@ -65,7 +55,6 @@ function sortAndPush() {
             defineTop(topmemes);
 
             //request timeout
-
             setTimeout(() => {
                 sortAndPush();
             }, parseInt(process.env.REQUEST_INTERVAL_MIN) * 60 * 1000);
@@ -112,9 +101,8 @@ function publish(message) {
 }
 
 // start timeout
-// setTimeout(() => {
-//     sortAndPush();
-// }, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
+setTimeout(() => {
+    sortAndPush();
+}, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
 
 
-sortAndPush();
