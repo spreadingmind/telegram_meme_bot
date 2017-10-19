@@ -8,11 +8,6 @@ const publisher = Redis.createClient(process.env.REDIS_URL);
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const telegram = new Telegram(process.env.BOT_TOKEN);
 
-const inlineMessageRatingKeyboard = [[
-    { text: '👍', callback_data: 'like' },
-    { text: '👎', callback_data: 'dislike' }
-]];
-
 bot.command('start', ({ reply }) => {
     return reply('Hi, you can add a new channel', Markup
         .keyboard([['Add channel'], ['Get current VK memes top 10']])
@@ -32,7 +27,7 @@ bot.hears('Get current VK memes top 10', ctx => {
     let limit = 10;
     const commandSubscriber = Redis.createClient(process.env.REDIS_URL);
 
-    sendCommand('vk', 'top', {get: limit});
+    sendCommand('vk', 'top', { get: limit });
 
     commandSubscriber.subscribe('vk_top');
     commandSubscriber.on('message', (channel, message) => {
@@ -53,15 +48,33 @@ subscriber.subscribe(process.env.REDIS_CHANNEL);
 subscriber.on('message', (channel, message) => {
     const messageData = safeJSONParse(message);
 
+    const inlineMessageRatingKeyboard = [[
+        {
+            text: '👎',
+            callback_data: JSON.stringify({ value: -1, source: messageData.source, channel: messageData.channel })
+        },
+        {
+            text: '👍',
+            callback_data: JSON.stringify({ value: 1, source: messageData.source, channel: messageData.channel })
+        },
+    ]];
+
     telegram.sendMessage(
         process.env.TELEGRAM_CHANNEL,
         messageData.text,
         Object.assign(
             {},
             messageData.options,
-            { reply_markup: JSON.stringify({ inline_keyboard: inlineMessageRatingKeyboard }) }
+            {
+                reply_markup: JSON.stringify({ inline_keyboard: inlineMessageRatingKeyboard }),
+            }
         )
     );
+});
+
+bot.on('callback_query', (callbackQuery) => {
+    console.log(callbackQuery.update.callback_query.data);
+    callbackQuery.answerCallbackQuery();
 });
 
 function safeJSONParse(json) {

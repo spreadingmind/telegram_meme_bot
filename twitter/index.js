@@ -10,7 +10,7 @@ const client = new Twitter({
     access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 });
 
-const sources = [
+const channels = [
     { name: 'chuck_facts', likesThreshold: 0 },
     { name: 'medievalreacts', likesThreshold: 0 },
     { name: 'ohwonka', likesThreshold: 0 },
@@ -25,24 +25,28 @@ setTimeout(() => {
 }, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
 
 function getTweetsAndScheduleNext() {
-    const source = sources[Math.floor(Math.random() * sources.length)];
+    const channel = channels[Math.floor(Math.random() * channels.length)];
 
     client.get('statuses/user_timeline',
         {
-            screen_name: source.name,
+            screen_name: channel.name,
             count: 20,
             trim_user: true,
             exclude_replies: true,
         })
         .then((tweets) => {
-            return getTopTweet(tweets, source);
+            return getTopTweet(tweets, channel);
         })
         .then((topTweet) => {
             if (topTweet) {
                 redisClient.publish(
                     process.env.REDIS_CHANNEL,
                     JSON.stringify(
-                        { text: `https://twitter.com/${source.name}/status/${topTweet.id_str}` }
+                        {
+                            text: `https://twitter.com/${channel.name}/status/${topTweet.id_str}`,
+                            source: 'twitter',
+                            channel: channel.name,
+                        }
                     )
                 );
             }
