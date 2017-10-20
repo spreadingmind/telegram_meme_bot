@@ -14,6 +14,7 @@
     "dotenv": "^4.0.0",
     "redis": "^2.8.0",
     "telegraf": "^3.12.1",
+    "telegraf-flow": "^8.3.0",
     "winston": "^2.4.0"
   }
 }

@@ -1,24 +1,31 @@
 require('dotenv').config({ silent: true });
 const Redis = require('redis');
+
 const Telegraf = require('telegraf');
 const { Markup, Telegram } = Telegraf;
+const TelegrafFlow = require('telegraf-flow');
+const { enter } = TelegrafFlow;
+
 const subscriber = Redis.createClient(process.env.REDIS_URL);
 const publisher = Redis.createClient(process.env.REDIS_URL);
 
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const telegram = new Telegram(process.env.BOT_TOKEN);
 
+const addNewSource = require('./features/addNewChannel');
+
 bot.command('start', ({ reply }) => {
-    return reply('Hi, you can add a new channel', Markup
-        .keyboard([['Add channel'], ['Get current VK memes top 10']])
+    return reply('Hi, bro', Markup
+        .keyboard(
+            [
+                ['Add memes source'],
+                ['Get current VK memes top 10'],
+            ]
+        )
         .oneTime()
         .resize()
         .extra()
     )
-});
-
-bot.hears('Add channel', ctx => {
-    return ctx.reply('Sorry nothing to do!');
 });
 
 bot.hears('Get current VK memes top 10', ctx => {
@@ -41,8 +48,6 @@ bot.hears('Get current VK memes top 10', ctx => {
 
     setTimeout(() => commandSubscriber.quit(), 1000 * limit);
 });
-
-bot.startPolling();
 
 subscriber.subscribe(process.env.REDIS_CHANNEL);
 subscriber.on('message', (channel, message) => {
@@ -67,13 +72,6 @@ function safeJSONParse(json) {
     return object;
 }
 
-// add new source to redis hash
-function addNew(source, channel) {
-    let chan = {};
-    chan[channel] = 100;
-    redisClient.hmset(source, chan);
-}
-
 function sendCommand(serviceName, command, parameters) {
     publisher.publish(
         `${serviceName}_commands`,
@@ -83,3 +81,9 @@ function sendCommand(serviceName, command, parameters) {
     );
 }
 
+const flow = new TelegrafFlow([addNewSource]);
+bot.use(Telegraf.memorySession());
+bot.use(flow.middleware());
+bot.hears('Add memes source', enter('add-new-source'));
+
+bot.startPolling();
