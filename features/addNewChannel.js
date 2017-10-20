@@ -36,7 +36,7 @@ const addNewSource = new WizardScene('add-new-source',
 
         switch(this.source) {
             case 'vk':
-                url = `${url}:9002`;
+                url = `${url}:9003`;
                 break;
 
             case 'facebook':
@@ -48,7 +48,7 @@ const addNewSource = new WizardScene('add-new-source',
                 break;
 
             case 'twitter':
-                url = `${url}:9003`;
+                url = `${url}:9002`;
                 break;
 
             default:

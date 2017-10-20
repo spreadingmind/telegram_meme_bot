@@ -2,10 +2,6 @@ require('dotenv').config({silent: true});
 const redisClient = require('redis').createClient(process.env.REDIS_URL);
 const redisChannel = process.env.REDIS_CHANNEL;
 const snoowrap = require('snoowrap');
-const bodyParser = require('body-parser');
-
-const express = require('express');
-const app = express();
 
 const reddit_app = new snoowrap({
     userAgent: process.env.reddit_agent,
@@ -109,6 +105,9 @@ setTimeout(() => {
     sortAndPush();
 }, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
 
+const bodyParser = require('body-parser');
+const express = require('express');
+const app = express();
 
 app.use(bodyParser.json());
 app.post('/validate',(req, res) => {
