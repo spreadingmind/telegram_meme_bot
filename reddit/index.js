@@ -2,6 +2,11 @@ require('dotenv').config({silent: true});
 const redisClient = require('redis').createClient(process.env.REDIS_URL);
 const redisChannel = process.env.REDIS_CHANNEL;
 const snoowrap = require('snoowrap');
+const bodyParser = require('body-parser');
+
+const express = require('express');
+const app = express();
+
 const reddit_app = new snoowrap({
     userAgent: process.env.reddit_agent,
     clientId: process.env.reddit_client,
@@ -104,4 +109,26 @@ setTimeout(() => {
     sortAndPush();
 }, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
 
+
+app.use(bodyParser.json());
+app.post('/validate',(req, res) => {
+    return reddit_app.getSubreddit(req.body.channel)
+        .getTop({time: 'hour'})
+        .then((result) => {
+            let responseData = {
+                exists: !!result.length,
+                channel: null,
+            };
+
+            if (result) {
+                responseData.channel = req.body.channel;
+            }
+
+            res.json(responseData).end();
+        });
+});
+
+app.listen(9001, () => {
+    console.log('Reddit Web App 9001');
+});
 

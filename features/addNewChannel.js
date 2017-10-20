@@ -36,43 +36,50 @@ const addNewSource = new WizardScene('add-new-source',
 
         switch(this.source) {
             case 'vk':
+                url = `${url}:9002`;
                 break;
 
             case 'facebook':
                 url = `${url}:9000`;
-                axios.post(`${url}/validate`, { channel: ctx.message.text })
-                    .then((response) => {
-                        if (!response || !response.data.exists) {
-                            return ctx.reply('Yo bro. Please try another channel');
-                        }
-
-                        let channel = response.data.channel;
-                        let redis = new redisClient(process.env.REDIS_URL);
-
-                        redis.addSource(this.source, channel)
-                            .then(() => {
-                                ctx.reply('Awesome bro! Enjoy yourself', Markup
-                                    .keyboard(
-                                        [
-                                            ['Add memes source'],
-                                            ['Get current VK memes top 10'],
-                                        ]
-                                    )
-                                    .oneTime()
-                                    .resize()
-                                    .extra()
-                                );
-                                return ctx.flow.leave();
-                            });
-                    });
                 break;
 
             case 'reddit':
+                url = `${url}:9001`;
                 break;
 
             case 'twitter':
+                url = `${url}:9003`;
+                break;
+
+            default:
                 break;
         }
+
+        axios.post(`${url}/validate`, { channel: ctx.message.text })
+            .then((response) => {
+                if (!response || !response.data.exists) {
+                    return ctx.reply('Yo bro. Please try another channel');
+                }
+
+                let channel = response.data.channel;
+                let redis = new redisClient(process.env.REDIS_URL);
+
+                redis.addSource(this.source, channel)
+                    .then(() => {
+                        ctx.reply('Awesome bro! Enjoy yourself', Markup
+                            .keyboard(
+                                [
+                                    ['Add memes source'],
+                                    ['Get current VK memes top 10'],
+                                ]
+                            )
+                            .oneTime()
+                            .resize()
+                            .extra()
+                        );
+                        return ctx.flow.leave();
+                    });
+            });
     }
 );
 

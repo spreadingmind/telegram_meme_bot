@@ -11,6 +11,8 @@
   "dependencies": {
     "dotenv": "^4.0.0",
     "redis": "^2.8.0",
-    "snoowrap": "1.14.2"
+    "snoowrap": "1.14.2",
+    "express": "4.16.2",
+    "body-parser": "1.18.2"
   }
 }
