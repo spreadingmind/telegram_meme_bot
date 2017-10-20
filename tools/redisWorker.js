@@ -37,7 +37,7 @@ class RedisWorker {
 
     getSources(platform) {
         return new Promise((resolve, reject) => {
-            this.client.hget(platform, (err, data) => {
+            this.client.hgetall(platform, (err, data) => {
                 if (err) {
                     reject(err);
                 } else {

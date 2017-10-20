@@ -63,6 +63,7 @@ class FBConnector {
             .getSources('facebook')
             .then((sources) => {
                 console.log('Sources are founded');
+                sources = Object.keys(sources);
                 if (!sources || !sources.length) {
                     return Promise.resolve();
                 }
@@ -70,7 +71,7 @@ class FBConnector {
                 let index = Math.floor(Math.random() * sources.length);
                 let source = sources[index];
                 console.log(`Source ${source} is chosen one.`);
-                return this.instance.api(`${source}/posts?fields=picture,message,link,likes.summary(true)&limit=25&since=${3600 * 12 * 1000}`)
+                return this.instance.api(`${source}/posts?fields=link,likes.summary(true)&limit=25&since=${3600 * 12 * 1000}`)
             })
             .then((result) => {
                 if (!result) {
@@ -83,7 +84,7 @@ class FBConnector {
                 }
                 let trashHold = 0;
 
-                let values = data.data
+                let values = result.data
                     .map((item) => {
                         trashHold += item.likes.summary.total_count || 0;
 
@@ -114,7 +115,7 @@ class FBConnector {
     }
 
     defineTop(values, trashHold) {
-        if (values.length || valu) {
+        if (!values.length) {
             return;
         }
 
