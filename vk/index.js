@@ -191,3 +191,29 @@ setTimeout(() => {
 }, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
 
 
+const bodyParser = require('body-parser');
+const express = require('express');
+const app = express();
+
+app.use(bodyParser.json());
+app.post('/validate',(req, res) => {
+    const apiUrl = `https://api.vk.com/method/photos.get?owner_id=${req.body.channel}&album_id=wall&extended=1&limit=1&rev=1`;
+    return axios.get(apiUrl)
+        .then((result) => {
+            let responseData = {
+                exists: !!(result && result.data && result.data.response && result.data.response.length),
+                channel: null,
+            };
+
+            if (result) {
+                responseData.channel = req.body.channel;
+            }
+
+            res.json(responseData).end();
+        });
+});
+
+app.listen(9003, () => {
+    console.log('VK Web App 9003');
+});
+
