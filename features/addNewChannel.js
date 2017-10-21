@@ -28,19 +28,19 @@ const addNewSource = new WizardScene('add-new-source',
         } else {
             ctx.reply('Awesome bro! Please enter channel name');
         }
-        this.source = ctx.message.text.toLowerCase();
+        this.platform = ctx.message.text.toLowerCase();
         return ctx.flow.wizard.next();
     },
     (ctx) => {
         let url = `http://127.0.0.1`;
 
-        switch(this.source) {
+        switch(this.platform) {
             case 'vk':
                 url = `${url}:9003`;
                 break;
 
             case 'facebook':
-                url = `${url}:9000`;
+                url = process.env.FACEBOOK_API_URI;
                 break;
 
             case 'reddit':
@@ -55,16 +55,16 @@ const addNewSource = new WizardScene('add-new-source',
                 break;
         }
 
-        axios.post(`${url}/validate`, { channel: ctx.message.text })
+        axios.post(`${url}/validate`, { source: ctx.message.text })
             .then((response) => {
                 if (!response || !response.data.exists) {
                     return ctx.reply('Yo bro. Please try another channel');
                 }
 
-                let channel = response.data.channel;
+                let source = response.data.source;
                 let redis = new redisClient(process.env.REDIS_URL);
 
-                redis.addSource(this.source, channel)
+                redis.addSource(this.platform, source)
                     .then(() => {
                         ctx.reply('Awesome bro! Enjoy yourself', Markup
                             .keyboard(

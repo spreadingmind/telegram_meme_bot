@@ -111,16 +111,16 @@ const app = express();
 
 app.use(bodyParser.json());
 app.post('/validate',(req, res) => {
-    return reddit_app.getSubreddit(req.body.channel)
+    return reddit_app.getSubreddit(req.body.source)
         .getTop({time: 'hour'})
         .then((result) => {
             let responseData = {
                 exists: !!result.length,
-                channel: null,
+                source: null,
             };
 
             if (result) {
-                responseData.channel = req.body.channel;
+                responseData.source = req.body.source;
             }
 
             res.json(responseData).end();

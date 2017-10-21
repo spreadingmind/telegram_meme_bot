@@ -47,6 +47,14 @@ class RedisWorker {
         });
     }
 
+    delSource(platform, source) {
+        return Promise.resolve()
+            .then(() => {
+                this.client.hdel(platform, source, (err) => {
+                    return err ? Promise.reject(err) : Promise.resolve(true);
+                });
+            });
+    }
 
 }
 

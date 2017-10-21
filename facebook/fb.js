@@ -1,45 +1,35 @@
 const FB = require('fb');
-const botRedis = require('../tools/redisWorker');
 
 class FBConnector {
-    constructor(appId, appSecret, redisUrl, redisChannel, fetchInterval) {
+    constructor(options, connector) {
+        let { appId, appSecret, conChannel, conPrefix, fetchInterval } = options;
         this.appId = appId;
         this.appSecret = appSecret;
 
-        this.redisBotClient = new botRedis(redisUrl);
-        this.redisChannel = redisChannel;
-        this.redisPrefix = 'facebook_cache_';
+        this.connector = connector;
+        this.conChannel = conChannel;
+        this.conPrefix = conPrefix;
         this.instance = FB.extend({ appId, appSecret });
         this.fetchInterval = fetchInterval;
-
-        // this.channels = [
-        //     'memes',
-        //     'livingnightmares',
-        //     'PlaceForMemes',
-        //     'Memes.fr',
-        //     'Dankrecoverymemes',
-        //     'top10memesoftheweek'
-        // ];
     }
 
     connect() {
-        return this.instance
-            .api('oauth/access_token', {
-                client_id: this.appId,
-                client_secret: this.appSecret,
-                grant_type: 'client_credentials'
-            })
-            .then((res) => {
-                if (!res || res.error) {
-                    console.log(!res ? 'error occurred' : res.error);
-                    return Promise.reject(res.error);
-                }
+        return this.instance.api('oauth/access_token', {
+            client_id: this.appId,
+            client_secret: this.appSecret,
+            grant_type: 'client_credentials'
+        })
+        .then((res) => {
+            if (!res || res.error) {
+                console.log(!res ? 'error occurred' : res.error);
+                return Promise.reject(res.error);
+            }
 
-                this.accessToken = res.access_token;
-                this.instance.setAccessToken(this.accessToken);
+            this.accessToken = res.access_token;
+            this.instance.setAccessToken(this.accessToken);
 
-                return Promise.resolve(res.access_token)
-            });
+            return Promise.resolve(res.access_token)
+        });
     }
 
     launch(accessToken = null) {
@@ -49,7 +39,10 @@ class FBConnector {
         }
 
         if (this.accessToken) {
-            setInterval(() => {
+            if (this.interval) {
+                clearInterval(this.interval);
+            }
+            this.interval = setInterval(() => {
                 this.getTop();
             }, parseInt(this.fetchInterval) * 60 * 1000);
         } else {
@@ -59,12 +52,15 @@ class FBConnector {
 
     getTop() {
         console.log('Try to send something!');
-        return this.redisBotClient
+        return this.connector
             .getSources('facebook')
             .then((sources) => {
-                console.log('Sources are founded');
+                if (!sources) {
+                    return Promise.resolve();
+                }
+                console.log(`Sources were found`);
                 sources = Object.keys(sources);
-                if (!sources || !sources.length) {
+                if (!sources.length) {
                     return Promise.resolve();
                 }
 
@@ -99,7 +95,7 @@ class FBConnector {
                             return -1;
                         }
                         if (a.likes < b.likes) {
-                            return 1;
+                            return 1;//////./sadasd
                         }
 
                         return 0;
@@ -111,7 +107,7 @@ class FBConnector {
     }
 
     getKey(id) {
-        return `${this.redisPrefix}${id}`;
+        return `${this.conPrefix}${id}`;
     }
 
     defineTop(values, trashHold) {
@@ -125,14 +121,14 @@ class FBConnector {
             return;
         }
 
-        this.redisBotClient.exists(this.getKey(message.id))
+        this.connector.exists(this.getKey(message.id))
             .then((isFound) => {
                 if (isFound) {
                     values.shift();
                     this.defineTop(values, trashHold);
                 } else {
-                    this.redisBotClient.cache(this.getKey(message.id), message.text);
-                    this.redisBotClient.publish(this.redisChannel, message.text);
+                    this.connector.cache(this.getKey(message.id), message.text);
+                    this.connector.publish(this.conChannel, message.text);
                 }
             })
             .catch((err) => {

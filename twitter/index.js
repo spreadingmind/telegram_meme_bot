@@ -95,7 +95,7 @@ app.use(bodyParser.json());
 app.post('/validate',(req, res) => {
     return client.get('statuses/user_timeline',
         {
-            screen_name: req.body.channel,
+            screen_name: req.body.source,
             count: 1,
             trim_user: true,
             exclude_replies: true,
@@ -103,11 +103,11 @@ app.post('/validate',(req, res) => {
         .then((result) => {
             let responseData = {
                 exists: !!result.length,
-                channel: null,
+                source: null,
             };
 
             if (result) {
-                responseData.channel = req.body.channel;
+                responseData.source = req.body.source;
             }
 
             res.json(responseData).end();
@@ -115,6 +115,6 @@ app.post('/validate',(req, res) => {
 });
 
 app.listen(9002, () => {
-    console.log('Reddit Web App 9002');
+    console.log('Twitter Web App 9002');
 });
 

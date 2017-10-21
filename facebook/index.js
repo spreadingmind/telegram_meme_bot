@@ -1,42 +1,49 @@
 require('dotenv').load({ path: '.env' });
 const bodyParser = require('body-parser');
-
-const express = require('express');
-const app = express();
+const app = require('express')();
 
 const FBConnector = require('./fb.js');
-let instance = new FBConnector(
-    process.env.APP_Id,
-    process.env.SECRET_KEY,
-    process.env.REDIS_URL,
-    process.env.REDIS_CHANNEL,
-    process.env.REQUEST_INTERVAL_MIN
-);
+const redisWorker = require('../tools/redisWorker');
+const redis = new redisWorker(process.env.REDIS_URL);
 
-instance.connect()
+const options = {
+    appId: process.env.APP_Id,
+    appSecret: process.env.SECRET_KEY,
+    conPrefix: process.env.CONNECTION_PREFIX,
+    conChannel: process.env.REDIS_CHANNEL,
+    fetchInterval: process.env.REQUEST_INTERVAL_MIN
+};
+
+let instance = new FBConnector(options, redis);
+
+instance
+    .connect()
     .then(() => {
         setTimeout(() => {
             instance.launch();
         }, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
 
         app.use(bodyParser.json());
-        app.post('/validate',(req, res) => {
-            instance.validate(req.body.channel)
+        app.use('/validate',(req, res) => {
+            if (!req || !req.body || !req.body.source) {
+                return res.status(400).json({ message: 'Enter data is not valid' }).end();
+            }
+            instance.validate(req.body.source)
                 .then((result) => {
                     let responseData = {
                         exists: result,
-                        channel: null,
+                        source: null,
                     };
 
                     if (result) {
-                        responseData.channel = req.body.channel;
+                        responseData.source = req.body.source;
                     }
 
                     res.json(responseData).end();
                 });
         });
 
-        app.listen(9000, () => {
-            console.log('Facebook Web App 9000');
+        app.listen(process.env.PORT, () => {
+            console.log(`Facebook Web App ${process.env.PORT}`);
         })
     });
