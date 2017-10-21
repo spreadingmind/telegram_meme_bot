@@ -124,6 +124,14 @@ app.post('/validate',(req, res) => {
             }
 
             res.json(responseData).end();
+        })
+        .catch(() => {
+            let responseData = {
+                exists: false,
+                source: null,
+            };
+
+            res.json(responseData).end();
         });
 });
 
