@@ -19,6 +19,13 @@ const domains = {
     'vk.com': 'vk',
 };
 
+const apiUrls = {
+    vk: 'http://localhost:9003',
+    facebook: process.env.FACEBOOK_API_URI,
+    reddit: 'http://localhost:9001',
+    twitter: 'http://localhost:9002',
+};
+
 const addNewSource = new WizardScene('add-new-source',
     (ctx) => {
         ctx.reply('Please send url to channel', Markup
@@ -65,29 +72,23 @@ const addNewSource = new WizardScene('add-new-source',
 
         this.platform = domains[parsedUrl.hostname];
 
-        let apiUrl = `http://127.0.0.1`;
         let parts = parsedUrl.pathname.split('/');
         let entity = null;
 
         switch(this.platform) {
             case 'vk':
-                apiUrl = `${apiUrl}:9003`;
-                break;
-
             case 'facebook':
-                apiUrl = process.env.FACEBOOK_API_URI;
-
+            case 'twitter':
                 if (parts < 2) {
                     console.log(parsedUrl.pathname);
                     return ctx.reply('Invalid or unsupported link. Please try another one.');
                 }
 
                 entity = parts[1];
+
                 break;
 
             case 'reddit':
-                apiUrl = `${apiUrl}:9001`;
-
                 if (parts < 3) {
                     console.log(parsedUrl.pathname);
                     return ctx.reply('Invalid or unsupported link. Please try another one.');
@@ -96,23 +97,11 @@ const addNewSource = new WizardScene('add-new-source',
                 entity = parts[2];
                 break;
 
-            case 'twitter':
-                apiUrl = `${apiUrl}:9002`;
-
-                if (parts < 2) {
-                    console.log(parsedUrl.pathname);
-                    return ctx.reply('Invalid or unsupported link. Please try another one.');
-                }
-
-                entity = parts[1];
-
-                break;
-
             default:
                 break;
         }
 
-        axios.post(`${apiUrl}/validate`, { source: entity })
+        axios.post(`${apiUrls[this.platform]}/validate`, { source: entity })
             .then((response) => {
                 if (!response || !response.data.exists) {
                     return ctx.reply('Yo bro. Please try another channel');
