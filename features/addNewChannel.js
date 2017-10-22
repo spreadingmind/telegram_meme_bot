@@ -5,6 +5,8 @@ const { Markup } = Telegraf;
 const TelegrafFlow = require('telegraf-flow');
 const { WizardScene } = TelegrafFlow;
 
+const keyboardSetup = require('../constants/defaultKeyboardSetup');
+
 const axios = require('axios');
 const redisClient = require('../tools/redisWorker');
 
@@ -47,17 +49,7 @@ const addNewSource = new WizardScene('add-new-source',
         let url = ctx.message.text;
 
         if (url === 'Back') {
-            ctx.reply('Hi, bro', Markup
-                .keyboard(
-                    [
-                        ['Add memes source'],
-                        ['Get current VK memes top 10'],
-                    ]
-                )
-                .oneTime()
-                .resize()
-                .extra()
-            );
+            ctx.reply('Hi, bro', keyboardSetup);
             return ctx.flow.leave();
         }
         let parsedUrl = urlModule.parse(url);
@@ -112,17 +104,7 @@ const addNewSource = new WizardScene('add-new-source',
 
                 redis.addSource(this.platform, source)
                     .then(() => {
-                        ctx.reply('Awesome bro! Enjoy yourself', Markup
-                            .keyboard(
-                                [
-                                    ['Add memes source'],
-                                    ['Get current VK memes top 10'],
-                                ]
-                            )
-                            .oneTime()
-                            .resize()
-                            .extra()
-                        );
+                        ctx.reply('Awesome bro! Enjoy yourself', keyboardSetup);
                         return ctx.flow.leave();
                     });
             })

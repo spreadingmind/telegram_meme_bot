@@ -2,7 +2,7 @@ require('dotenv').config({ silent: true });
 const Redis = require('redis');
 
 const Telegraf = require('telegraf');
-const { Markup, Telegram } = Telegraf;
+const { Telegram } = Telegraf;
 const TelegrafFlow = require('telegraf-flow');
 const { enter } = TelegrafFlow;
 
@@ -12,20 +12,12 @@ const publisher = Redis.createClient(process.env.REDIS_URL);
 const bot = new Telegraf(process.env.BOT_TOKEN);
 const telegram = new Telegram(process.env.BOT_TOKEN);
 
+const keyboardSetup = require('./constants/defaultKeyboardSetup');
 const addNewSource = require('./features/addNewChannel');
+const deleteSource = require('./features/deleteChannel');
 
 bot.command('start', ({ reply }) => {
-    return reply('Hi, bro', Markup
-        .keyboard(
-            [
-                ['Add memes source'],
-                ['Get current VK memes top 10'],
-            ]
-        )
-        .oneTime()
-        .resize()
-        .extra()
-    )
+    return reply('Hi, bro', keyboardSetup);
 });
 
 bot.hears('Get current VK memes top 10', ctx => {
@@ -81,9 +73,10 @@ function sendCommand(serviceName, command, parameters) {
     );
 }
 
-const flow = new TelegrafFlow([addNewSource]);
+const flow = new TelegrafFlow([addNewSource, deleteSource]);
 bot.use(Telegraf.memorySession());
 bot.use(flow.middleware());
 bot.hears('Add memes source', enter('add-new-source'));
+bot.hears('Delete memes source', enter('delete-source'));
 
 bot.startPolling();
