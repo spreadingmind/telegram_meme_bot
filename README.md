@@ -20,7 +20,10 @@ Made in terms of BOTON Hackathon, by [Bekitzur](http://bekitzur.com/) team
 - `REDIS_URL` - Redis instance URL
 - `REDIS_CHANNEL` - Redis channel to post messages to
 - `REQUEST_INTERVAL_MIN` - API polling interval
-- `START_TIMEOUT_MIN` - Worker start timeout 
+- `START_TIMEOUT_MIN` - Worker start timeout
+- `FACEBOOK_API_URI` -
+- `CONNECTION_PREFIX` - redis cache prefix
+- `PORT` - express server port
 
 ## Twitter
 - `TWITTER_CONSUMER_KEY` - Twitter consumer key, can be obtained [here](https://apps.twitter.com)
