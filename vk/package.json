@@ -1,15 +1,18 @@
 {
   "name": "telegram-meme-bot-vk-source",
   "version": "1.0.0",
-  "description": "",
+  "description": "VK connector to channels",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Memos Team",
   "license": "ISC",
+  "repository": "git@github.com:spreadingmind/telegram_meme_bot.git",
   "dependencies": {
+    "axios": "0.16.2",
     "body-parser": "1.18.2",
+    "dotenv": "4.0.0",
     "express": "4.16.2",
     "redis": "2.8.0"
   }

@@ -1,0 +1,29 @@
+version: '3'
+services:
+  facebook:
+    ports:
+    - "9000:9000"
+    image: "fb_con"
+    links:
+    - redis
+  reddit:
+    ports:
+    - "9001:9001"
+    image: "red_con"
+    links:
+    - redis
+  twitter:
+    ports:
+    - "9002:9002"
+    image: "twi_con"
+    links:
+    - redis
+  vk:
+    ports:
+    - "9003:9003"
+    image: "vk_con"
+    links:
+    - redis
+  redis:
+    image: "redis:alpine"
+    ip: '172

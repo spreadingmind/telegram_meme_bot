@@ -8,7 +8,7 @@ const { WizardScene } = TelegrafFlow;
 const keyboardSetup = require('../constants/defaultKeyboardSetup');
 
 const axios = require('axios');
-const redisClient = require('../tools/redisWorker');
+const redisClient = require('../../tools/redisWorker');
 
 const domains = {
     'facebook.com': 'facebook',
@@ -22,10 +22,10 @@ const domains = {
 };
 
 const apiUrls = {
-    vk: 'http://localhost:9003',
+    vk: process.env.VK_API_URI,
     facebook: process.env.FACEBOOK_API_URI,
-    reddit: 'http://localhost:9001',
-    twitter: 'http://localhost:9002',
+    reddit: process.env.REDDIT_API_URI,
+    twitter: process.env.TWITTER_API_URI,
 };
 
 const addNewSource = new WizardScene('add-new-source',

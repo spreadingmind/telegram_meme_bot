@@ -4,17 +4,19 @@ _A whole lot of memes_.
 
 ![img](https://cs5.pikabu.ru/images/previews_comm/2015-12_3/1450010981152156326.jpg)
 
-
 Made in terms of BOTON Hackathon, by [Bekitzur](http://bekitzur.com/) team 
 
 # Environment variables
+
 ## Global settings
+
 - `BOT_TOKEN` - Telegram bot token
 - `REDIS_URL` - Redis instance URL 
 - `REDIS_CHANNEL` - Redis channel to post messages to
 - `TELEGRAM_CHANNEL` - Telegram channel ID to post memes to 
 
 ## Facebook
+
 - `APP_ID` - Facebook application id
 - `SECRET_KEY` - secret key for Facebook appication
 - `REDIS_URL` - Redis instance URL
@@ -26,6 +28,7 @@ Made in terms of BOTON Hackathon, by [Bekitzur](http://bekitzur.com/) team
 - `PORT` - express server port
 
 ## Twitter
+
 - `TWITTER_CONSUMER_KEY` - Twitter consumer key, can be obtained [here](https://apps.twitter.com)
 - `TWITTER_CONSUMER_SECRET` - Twitter consumer secret, can be obtained [here](https://apps.twitter.com)
 - `TWITTER_ACCESS_TOKEN_KEY` - Twitter access token key, can be obtained [here](https://apps.twitter.com)
@@ -47,7 +50,7 @@ Made in terms of BOTON Hackathon, by [Bekitzur](http://bekitzur.com/) team
 - `REQUEST_INTERVAL_MIN` - API polling interval
 - `START_TIMEOUT_MIN` - Worker start timeout
 
-## Vkontakte
+## VKontakte
 
 - `REDIS_URL` - Redis instance URL
 - `REDIS_CHANNEL` - Redis channel to post messages to

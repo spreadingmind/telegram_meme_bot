@@ -4,7 +4,7 @@ const { Markup } = Telegraf;
 const TelegrafFlow = require('telegraf-flow');
 const { WizardScene } = TelegrafFlow;
 
-const redisClient = require('../tools/redisWorker');
+const redisClient = require('../../tools/redisWorker');
 const redis = new redisClient(process.env.REDIS_URL);
 
 const keyboardSetup = require('../constants/defaultKeyboardSetup');

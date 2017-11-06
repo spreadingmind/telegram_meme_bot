@@ -3,6 +3,7 @@ const Redis = require('redis');
 
 const Telegraf = require('telegraf');
 const { Telegram } = Telegraf;
+
 const TelegrafFlow = require('telegraf-flow');
 const { enter } = TelegrafFlow;
 
@@ -73,7 +74,7 @@ function sendCommand(serviceName, command, parameters) {
     );
 }
 
-const flow = new TelegrafFlow([addNewSource, deleteSource]);
+const flow = new TelegrafFlow([ addNewSource, deleteSource ]);
 bot.use(Telegraf.memorySession());
 bot.use(flow.middleware());
 bot.hears('Add memes source', enter('add-new-source'));

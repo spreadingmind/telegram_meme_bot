@@ -21,7 +21,7 @@ subscriber.subscribe('vk_commands');
 subscriber.on('message', (channel, message) => {
     const messageData = safeJSONParse(message);
 
-    if (messageData.command == 'top') {
+    if (messageData.command === 'top') {
         getTop(messageData.parameters.get).then((top) => {
             publisher.publish(
                 'vk_top',

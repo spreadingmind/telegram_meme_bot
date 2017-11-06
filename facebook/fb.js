@@ -95,7 +95,7 @@ class FBConnector {
                             return -1;
                         }
                         if (a.likes < b.likes) {
-                            return 1;//////./sadasd
+                            return 1;
                         }
 
                         return 0;
@@ -145,7 +145,6 @@ class FBConnector {
                 return Promise.resolve(false);
             });
     }
-
 }
 
 module.exports = FBConnector;
