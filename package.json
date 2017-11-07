@@ -1,0 +1,25 @@
+{
+  "name": "memes-global",
+  "version": "0.0.1",
+  "description": "Global application",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "git@github.com:spreadingmind/telegram_meme_bot.git",
+  "dependencies": {
+    "axios": "0.16.2",
+    "body-parser": "1.18.2",
+    "dotenv": "4.0.0",
+    "express": "4.16.2",
+    "fb": "2.0.0",
+    "redis": "2.8.0",
+    "snoowrap": "1.14.2",
+    "telegraf": "3.12.1",
+    "telegraf-flow": "8.3.0",
+    "lokijs": "1.5.0",
+    "twitter": "1.7.1"
+  },
+  "author": "6otan1dze@gmail.com",
+  "license": "MIT"
+}
