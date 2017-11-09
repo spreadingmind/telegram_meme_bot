@@ -1,6 +1,6 @@
 require('dotenv').config({ silent: true });
 const Twitter = require('twitter');
-
+const stringToNumber = require('../tools/stringToNumber');
 const redis = require('../tools/redisWorker');
 
 const client = new Twitter({
@@ -10,7 +10,7 @@ const client = new Twitter({
     access_token_secret: process.env.TWITTER_ACCESS_TOKEN_SECRET,
 });
 
-const redisClient = new redis(process.env.REDIS_URL, 24);
+const redisClient = new redis(process.env.REDIS_URL, stringToNumber(process.env.REDIS_TTL) || 24);
 
 setTimeout(() => {
     getTweetsAndScheduleNext();

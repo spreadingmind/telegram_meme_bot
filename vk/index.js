@@ -1,5 +1,6 @@
 require('dotenv').config({ silent: true });
 const axios = require('axios');
+const stringToNumber = require('../tools/stringToNumber');
 
 const groupIds = [
     "-45745333", // vk.com/4ch
@@ -13,6 +14,7 @@ const groupIds = [
 ];
 
 let cache = {};
+const redisTtl = (stringToNumber(process.env.REDIS_TTL) || 24) * 60 * 60;
 
 const subscriber = require('redis').createClient(process.env.REDIS_URL);
 const publisher = require('redis').createClient(process.env.REDIS_URL);
@@ -105,7 +107,7 @@ function getVkMeme() {
             .then(() => {
                 cache[actualMeme.id] = actualMeme.src;
 
-                publisher.set(`vk_${actualMeme.id}`, JSON.stringify(actualMeme), 'EX', 24 * 60 * 60);
+                publisher.set(`vk_${actualMeme.id}`, JSON.stringify(actualMeme), 'EX', redisTtl);
 
                 publisher.publish(
                     process.env.REDIS_CHANNEL,

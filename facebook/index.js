@@ -1,10 +1,11 @@
 require('dotenv').load({ path: '.env' });
 const bodyParser = require('body-parser');
 const app = require('express')();
+const stringToNumber = require('../tools/stringToNumber');
 
 const FBConnector = require('./fb.js');
 const redisWorker = require('../tools/redisWorker');
-const redis = new redisWorker(process.env.REDIS_URL);
+const redis = new redisWorker(process.env.REDIS_URL, stringToNumber(process.env.REDIS_TTL) || 24);
 
 const options = {
     appId: process.env.APP_Id,

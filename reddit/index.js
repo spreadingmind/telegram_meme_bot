@@ -2,6 +2,8 @@ require('dotenv').config({silent: true});
 const redisClient = require('redis').createClient(process.env.REDIS_URL);
 const redisChannel = process.env.REDIS_CHANNEL;
 const snoowrap = require('snoowrap');
+const stringToNumber = require('../tools/stringToNumber');
+const redisTtl = (stringToNumber(process.env.REDIS_TTL) || 24) * 60 * 60;
 
 const reddit_app = new snoowrap({
     userAgent: process.env.reddit_agent,
@@ -93,7 +95,7 @@ function isCached(id) {
 }
 
 function cache(message) {
-    redisClient.set(`reddit_${message.id}`, JSON.stringify(message), 'EX', 24 * 60 * 60);
+    redisClient.set(`reddit_${message.id}`, JSON.stringify(message), 'EX', redisTtl);
 }
 
 function publish(message) {
