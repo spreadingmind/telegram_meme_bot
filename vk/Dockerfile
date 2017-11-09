@@ -9,7 +9,6 @@ ADD . /var/www/app
 
 COPY package.json /var/www
 COPY package-lock.json /var/www
-COPY .env /var/www
 
 # Install any needed packages specified in requirements.txt
 RUN npm i

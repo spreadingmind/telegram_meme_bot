@@ -3,14 +3,14 @@ const axios = require('axios');
 const stringToNumber = require('../tools/stringToNumber');
 
 const groupIds = [
-    "-45745333", // vk.com/4ch
-    "-31480508", // vk.com/pikabu
-    "-131489096", // vk.com/weirdkerneltricks
-    "-111920468", // vk.com/neomemeral
-    "-149905440", // vk.com/postmodern_memes
-    "-124374483", // vk.com/navalniymem
-    "-149919976", // vk.com/anarchytranshum
-    "-32041317", // vk.com/ru9gag
+    '-45745333', // vk.com/4ch
+    '-31480508', // vk.com/pikabu
+    '-131489096', // vk.com/weirdkerneltricks
+    '-111920468', // vk.com/neomemeral
+    '-149905440', // vk.com/postmodern_memes
+    '-124374483', // vk.com/navalniymem
+    '-149919976', // vk.com/anarchytranshum
+    '-32041317', // vk.com/ru9gag
 ];
 
 let cache = {};
@@ -25,12 +25,7 @@ subscriber.on('message', (channel, message) => {
 
     if (messageData.command === 'top') {
         getTop(messageData.parameters.get).then((top) => {
-            publisher.publish(
-                'vk_top',
-                JSON.stringify(
-                    { top: top }
-                )
-            );
+            publisher.publish('vk_top', JSON.stringify({ top }));
         });
     }
 
@@ -53,14 +48,15 @@ function getPhotos(id) {
                         id: item.pid,
                         src: item.src_big,
                         likes: item.likes.count,
-                        source: id
+                        source: id,
                     });
                 }
             });
             return resultMemes;
-        }).catch((error) => {
-            console.error(error);
         })
+        .catch((error) => {
+            console.error(error);
+        });
 }
 
 function getTop(limit = 100) {
@@ -108,24 +104,17 @@ function getVkMeme() {
                 cache[actualMeme.id] = actualMeme.src;
 
                 publisher.set(`vk_${actualMeme.id}`, JSON.stringify(actualMeme), 'EX', redisTtl);
+                let message = {
+                    text: actualMeme.src,
+                    source: 'vk',
+                    channel: actualMeme.source,
+                };
 
-                publisher.publish(
-                    process.env.REDIS_CHANNEL,
-                    JSON.stringify(
-                        {
-                            text: actualMeme.src,
-                            source: 'vk',
-                            channel: actualMeme.source,
-                        }
-                    )
-                );
-
+                publisher.publish(process.env.REDIS_CHANNEL, JSON.stringify(message));
             })
             .catch(() => {
                 cache[actualMeme.id] = actualMeme.src;
             });
-
-
     });
 }
 
@@ -137,13 +126,12 @@ function isCached(id) {
             } else {
                 resolve();
             }
-        })
+        });
     });
 }
 
 function buildCache() {
     getTop(200).then((top) => {
-
         top.forEach((meme) => {
             isCached(meme.id)
                 .then(() => {
@@ -190,7 +178,7 @@ setTimeout(() => {
     setInterval(() => {
         getVkMeme();
     }, process.env.REQUEST_INTERVAL_MIN * 60 * 1000);
-}, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
+}, parseInt(process.env.START_TIMEOUT_MIN, 10) * 60 * 1000);
 
 const bodyParser = require('body-parser');
 const express = require('express');

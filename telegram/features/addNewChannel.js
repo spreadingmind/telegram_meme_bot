@@ -28,18 +28,19 @@ const apiUrls = {
     twitter: process.env.TWITTER_API_URI,
 };
 
-const addNewSource = new WizardScene('add-new-source',
+const addNewSource = new WizardScene(
+    'add-new-source',
     (ctx) => {
-        ctx.reply('Please send url to channel', Markup
-            .keyboard(
-                [
-                    ['Back'],
-                ]
-            )
+        let button = Markup
+            .keyboard([
+                ['Back'],
+            ])
             .oneTime()
             .resize()
-            .extra()
-        );
+            .extra();
+
+        ctx.reply('Please send url to channel', button);
+
         return ctx.flow.wizard.next();
     },
     (ctx) => {
@@ -52,6 +53,7 @@ const addNewSource = new WizardScene('add-new-source',
             ctx.reply('Hi, bro', keyboardSetup);
             return ctx.flow.leave();
         }
+
         let parsedUrl = urlModule.parse(url);
 
         if (!parsedUrl.hostname) {
@@ -66,8 +68,9 @@ const addNewSource = new WizardScene('add-new-source',
 
         let parts = parsedUrl.pathname.split('/');
         let entity = null;
+        let index = null;
 
-        switch(this.platform) {
+        switch (this.platform) {
             case 'vk':
             case 'facebook':
             case 'twitter':
@@ -76,7 +79,8 @@ const addNewSource = new WizardScene('add-new-source',
                     return ctx.reply('Invalid or unsupported link. Please try another one.');
                 }
 
-                entity = parts[1];
+                index = 1;
+                entity = parts[index];
 
                 break;
 
@@ -85,8 +89,9 @@ const addNewSource = new WizardScene('add-new-source',
                     console.log(parsedUrl.pathname);
                     return ctx.reply('Invalid or unsupported link. Please try another one.');
                 }
+                index = 2;
+                entity = parts[index];
 
-                entity = parts[2];
                 break;
 
             default:
@@ -99,10 +104,9 @@ const addNewSource = new WizardScene('add-new-source',
                     return ctx.reply('Yo bro. Please try another channel');
                 }
 
-                let source = response.data.source;
                 let redis = new redisClient(process.env.REDIS_URL);
 
-                redis.addSource(this.platform, source)
+                redis.addSource(this.platform, response.data.source)
                     .then(() => {
                         ctx.reply('Awesome bro! Enjoy yourself', keyboardSetup);
                         return ctx.flow.leave();
@@ -112,7 +116,7 @@ const addNewSource = new WizardScene('add-new-source',
                 console.log(err);
                 return ctx.reply('Yo bro. Please try another channel');
             });
-    }
+    },
 );
 
 module.exports = addNewSource;

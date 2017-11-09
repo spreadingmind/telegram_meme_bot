@@ -14,7 +14,7 @@ const redisClient = new redis(process.env.REDIS_URL, stringToNumber(process.env.
 
 setTimeout(() => {
     getTweetsAndScheduleNext();
-}, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
+}, parseInt(process.env.START_TIMEOUT_MIN, 10) * 60 * 1000);
 
 function getTweetsAndScheduleNext() {
     redisClient.getSources('twitter')
@@ -24,14 +24,15 @@ function getTweetsAndScheduleNext() {
             }
 
             const channel = sources[Math.floor(Math.random() * sources.length)];
+            const button = {
+                screen_name: channel.name,
+                count: 20,
+                trim_user: true,
+                exclude_replies: true,
+            };
 
-            client.get('statuses/user_timeline',
-                {
-                    screen_name: channel.name,
-                    count: 20,
-                    trim_user: true,
-                    exclude_replies: true,
-                })
+            client
+                .get('statuses/user_timeline', button)
                 .then((tweets) => {
                     return getTopTweet(tweets, channel);
                 })
@@ -43,18 +44,18 @@ function getTweetsAndScheduleNext() {
                                 text: `https://twitter.com/${channel.name}/status/${topTweet.id_str}`,
                                 source: 'twitter',
                                 channel: channel.name,
-                            }
+                            },
                         );
                     }
 
                     setTimeout(() => {
                         getTweetsAndScheduleNext();
-                    }, parseInt(process.env.REQUEST_INTERVAL_MIN) * 60 * 1000);
+                    }, parseInt(process.env.REQUEST_INTERVAL_MIN, 10) * 60 * 1000);
                 })
                 .catch((err) => {
                     console.error(err);
                 });
-        })
+        });
 }
 
 function getTopTweet(tweets, source) {
@@ -79,12 +80,11 @@ function getTopTweet(tweets, source) {
 
             redisClient.cache(tweetKey, '1');
             return Promise.resolve(topTweet);
-
         });
 }
 
 function countRating(tweet) {
-    return tweet.favorite_count + tweet.retweet_count * 1.5;
+    return tweet.favorite_count + (tweet.retweet_count * 1.5);
 }
 
 const bodyParser = require('body-parser');
@@ -92,14 +92,16 @@ const express = require('express');
 const app = express();
 
 app.use(bodyParser.json());
-app.post('/validate',(req, res) => {
-    return client.get('statuses/user_timeline',
-        {
-            screen_name: req.body.source,
-            count: 1,
-            trim_user: true,
-            exclude_replies: true,
-        })
+app.post('/validate', (req, res) => {
+    let params = {
+        screen_name: req.body.source,
+        count: 1,
+        trim_user: true,
+        exclude_replies: true,
+    };
+
+    return client
+        .get('statuses/user_timeline', params)
         .then((result) => {
             let responseData = {
                 exists: !!result.length,

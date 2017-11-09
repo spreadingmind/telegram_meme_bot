@@ -3,9 +3,9 @@ module.exports = (string) => {
         return 0;
     }
 
-    let int = parseInt(string);
+    let int = parseInt(string, 10);
 
-    if (isNaN(int)) {
+    if (Number.isNaN(int)) {
         return 0;
     }
 

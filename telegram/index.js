@@ -21,7 +21,7 @@ bot.command('start', ({ reply }) => {
     return reply('Hi, bro', keyboardSetup);
 });
 
-bot.hears('Get current VK memes top 10', ctx => {
+bot.hears('Get current VK memes top 10', (ctx) => {
     ctx.reply('Get ready for the top!');
 
     let limit = 10;
@@ -31,7 +31,6 @@ bot.hears('Get current VK memes top 10', ctx => {
 
     commandSubscriber.subscribe('vk_top');
     commandSubscriber.on('message', (channel, message) => {
-
         const messageData = safeJSONParse(message);
 
         messageData.top.forEach((item, index) => {
@@ -49,7 +48,7 @@ subscriber.on('message', (channel, message) => {
     telegram.sendMessage(
         process.env.TELEGRAM_CHANNEL,
         messageData.text,
-        messageData.options
+        messageData.options,
     );
 });
 
@@ -68,13 +67,14 @@ function safeJSONParse(json) {
 function sendCommand(serviceName, command, parameters) {
     publisher.publish(
         `${serviceName}_commands`,
-        JSON.stringify(
-            { command: command, parameters: parameters }
-        )
+        JSON.stringify({
+            command,
+            parameters,
+        }),
     );
 }
 
-const flow = new TelegrafFlow([ addNewSource, deleteSource ]);
+const flow = new TelegrafFlow([addNewSource, deleteSource]);
 bot.use(Telegraf.memorySession());
 bot.use(flow.middleware());
 bot.hears('Add memes source', enter('add-new-source'));

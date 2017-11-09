@@ -2,7 +2,14 @@ const FB = require('fb');
 
 class FBConnector {
     constructor(options, connector) {
-        let { appId, appSecret, conChannel, conPrefix, fetchInterval } = options;
+        let {
+            appId,
+            appSecret,
+            conChannel,
+            conPrefix,
+            fetchInterval,
+        } = options;
+
         this.appId = appId;
         this.appSecret = appSecret;
 
@@ -17,7 +24,7 @@ class FBConnector {
         return this.instance.api('oauth/access_token', {
             client_id: this.appId,
             client_secret: this.appSecret,
-            grant_type: 'client_credentials'
+            grant_type: 'client_credentials',
         })
         .then((res) => {
             if (!res || res.error) {
@@ -28,7 +35,7 @@ class FBConnector {
             this.accessToken = res.access_token;
             this.instance.setAccessToken(this.accessToken);
 
-            return Promise.resolve(res.access_token)
+            return Promise.resolve(res.access_token);
         });
     }
 
@@ -44,9 +51,9 @@ class FBConnector {
             }
             this.interval = setInterval(() => {
                 this.getTop();
-            }, parseInt(this.fetchInterval) * 60 * 1000);
+            }, parseInt(this.fetchInterval, 10) * 60 * 1000);
         } else {
-            throw new Error('Access token is not found. Please run connect method.')
+            throw new Error('Access token is not found. Please run connect method.');
         }
     }
 
@@ -58,7 +65,7 @@ class FBConnector {
                 if (!sources) {
                     return Promise.resolve();
                 }
-                console.log(`Sources were found`);
+                console.log('Sources were found');
                 sources = Object.keys(sources);
                 if (!sources.length) {
                     return Promise.resolve();
@@ -67,7 +74,7 @@ class FBConnector {
                 let index = Math.floor(Math.random() * sources.length);
                 let source = sources[index];
                 console.log(`Source ${source} is chosen one.`);
-                return this.instance.api(`${source}/posts?fields=link,likes.summary(true)&limit=25&since=${3600 * 12 * 1000}`)
+                return this.instance.api(`${source}/posts?fields=link,likes.summary(true)&limit=25&since=${3600 * 12 * 1000}`);
             })
             .then((result) => {
                 if (!result) {
@@ -133,13 +140,13 @@ class FBConnector {
             })
             .catch((err) => {
                 console.log(JSON.stringify(err));
-            })
+            });
     }
 
     validate(channelName) {
         return this.instance.api(channelName)
             .then((res) => {
-                return Promise.resolve(!!res.id)
+                return Promise.resolve(!!res.id);
             })
             .catch(() => {
                 return Promise.resolve(false);

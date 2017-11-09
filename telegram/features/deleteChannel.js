@@ -69,16 +69,8 @@ const deleteSource = new WizardScene('delete-source',
 
                 this.sourcesTempCache = tempCache;
 
-                ctx.reply(messages.join(''), Markup
-                    .keyboard(
-                        [
-                            ['Back'],
-                        ]
-                    )
-                    .oneTime()
-                    .resize()
-                    .extra()
-                );
+                let button = Markup.keyboard([['Back']]).oneTime().resize().extra();
+                ctx.reply(messages.join(''), button);
 
                 return ctx.flow.wizard.next();
             });
@@ -102,9 +94,9 @@ const deleteSource = new WizardScene('delete-source',
             })
             .catch((err) => {
                 console.log(err);
-                return ctx.reply('Hustom we have a problem!!');
+                return ctx.reply('Huston we have a problem!!');
             });
-    }
+    },
 );
 
 module.exports = deleteSource;

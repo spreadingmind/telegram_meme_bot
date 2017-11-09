@@ -12,7 +12,7 @@ const options = {
     appSecret: process.env.SECRET_KEY,
     conPrefix: process.env.CONNECTION_PREFIX,
     conChannel: process.env.REDIS_CHANNEL,
-    fetchInterval: process.env.REQUEST_INTERVAL_MIN
+    fetchInterval: process.env.REQUEST_INTERVAL_MIN,
 };
 
 let instance = new FBConnector(options, redis);
@@ -22,10 +22,10 @@ instance
     .then(() => {
         setTimeout(() => {
             instance.launch();
-        }, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
+        }, parseInt(process.env.START_TIMEOUT_MIN, 10) * 60 * 1000);
 
         app.use(bodyParser.json());
-        app.use('/validate',(req, res) => {
+        app.use('/validate', (req, res) => {
             if (!req || !req.body || !req.body.source) {
                 return res.status(400).json({ message: 'Enter data is not valid' }).end();
             }
@@ -46,5 +46,5 @@ instance
 
         app.listen(process.env.PORT, () => {
             console.log(`Facebook Web App ${process.env.PORT}`);
-        })
+        });
     });

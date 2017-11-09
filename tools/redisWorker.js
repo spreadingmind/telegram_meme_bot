@@ -11,7 +11,7 @@ class RedisWorker {
         return new Promise((resolve) => {
             this.client.get(key, (err, value) => {
                 resolve(!!value);
-            })
+            }),
         });
     }
 

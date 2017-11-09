@@ -1,20 +1,20 @@
-require('dotenv').config({silent: true});
+require('dotenv').config({ silent: true });
 const redisClient = require('redis').createClient(process.env.REDIS_URL);
 const redisChannel = process.env.REDIS_CHANNEL;
 const snoowrap = require('snoowrap');
 const stringToNumber = require('../tools/stringToNumber');
 const redisTtl = (stringToNumber(process.env.REDIS_TTL) || 24) * 60 * 60;
 
-const reddit_app = new snoowrap({
+const redditApp = new snoowrap({
     userAgent: process.env.reddit_agent,
     clientId: process.env.reddit_client,
     clientSecret: process.env.reddit_secret,
     username: process.env.reddit_user,
-    password: process.env.reddit_pass
+    password: process.env.reddit_pass,
 });
 
 function getTops(subr) {
-    return reddit_app.getSubreddit(subr).getTop({time: 'hour'}).catch((error) => {
+    return redditApp.getSubreddit(subr).getTop({ time: 'hour' }).catch((error) => {
         console.error(error);
         return Promise.resolve([]);
     });
@@ -22,10 +22,10 @@ function getTops(subr) {
 
 
 function getRedditChannels() {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         redisClient.hkeys('reddit', (err, data) => {
             resolve(data);
-        })
+        });
     });
 }
 
@@ -45,8 +45,9 @@ function getAll(channels) {
                 .map((meme) => {
                     return {
                         id: meme.id,
-                        url: meme.url};
-                    });
+                        url: meme.url
+                    };
+                });
             return allMemes;
         });
 }
@@ -56,10 +57,10 @@ function sortAndPush() {
         getAll(channels).then((topmemes) => {
             defineTop(topmemes);
 
-            //request timeout
+            // request timeout
             setTimeout(() => {
                 sortAndPush();
-            }, parseInt(process.env.REQUEST_INTERVAL_MIN) * 60 * 1000);
+            }, parseInt(process.env.REQUEST_INTERVAL_MIN, 10) * 60 * 1000);
         });
     });
 
@@ -67,16 +68,15 @@ function sortAndPush() {
 
 
 function defineTop(values) {
-    if (!values.length){
+    if (!values.length) {
         return;
     }
     isCached(values[0].id)
         .then((cached) => {
-            if (cached){
+            if (cached) {
                 values.shift();
                 defineTop(values);
-            }
-            else {
+            } else {
                 cache(values[0]);
                 publish(values[0].url);
             }
@@ -90,7 +90,7 @@ function isCached(id) {
     return new Promise((resolve, reject) => {
         redisClient.get(`reddit_${id}`, (err, value) => {
             resolve(!!value);
-        })
+        });
     });
 }
 
@@ -105,16 +105,16 @@ function publish(message) {
 // start timeout
 setTimeout(() => {
     sortAndPush();
-}, parseInt(process.env.START_TIMEOUT_MIN) * 60 * 1000);
+}, parseInt(process.env.START_TIMEOUT_MIN, 10) * 60 * 1000);
 
 const bodyParser = require('body-parser');
 const express = require('express');
 const app = express();
 
 app.use(bodyParser.json());
-app.post('/validate',(req, res) => {
-    return reddit_app.getSubreddit(req.body.source)
-        .getTop({time: 'hour'})
+app.post('/validate', (req, res) => {
+    return redditApp.getSubreddit(req.body.source)
+        .getTop({ time: 'hour' })
         .then((result) => {
             let responseData = {
                 exists: !!result.length,
