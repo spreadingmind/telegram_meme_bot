@@ -10,8 +10,8 @@
   "license": "ISC",
   "repository": "git@github.com:spreadingmind/telegram_meme_bot.git",
   "dependencies": {
-    "dotenv": "^4.0.0",
-    "redis": "^2.8.0",
+    "dotenv": "4.0.0",
+    "redis": "2.8.0",
     "snoowrap": "1.14.2",
     "express": "4.16.2",
     "body-parser": "1.18.2"

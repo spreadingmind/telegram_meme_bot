@@ -1,4 +1,5 @@
 require('dotenv').config({ silent: true });
+
 const Twitter = require('twitter');
 const stringToNumber = require('../tools/stringToNumber');
 const redis = require('../tools/redisWorker');

@@ -1,23 +1,18 @@
 require('dotenv').config({ silent: true });
-const axios = require('axios');
-const stringToNumber = require('../tools/stringToNumber');
 
-const groupIds = [
-    '-45745333', // vk.com/4ch
-    '-31480508', // vk.com/pikabu
-    '-131489096', // vk.com/weirdkerneltricks
-    '-111920468', // vk.com/neomemeral
-    '-149905440', // vk.com/postmodern_memes
-    '-124374483', // vk.com/navalniymem
-    '-149919976', // vk.com/anarchytranshum
-    '-32041317', // vk.com/ru9gag
-];
+const redis = require('redis');
+const axios = require('axios');
+const bodyParser = require('body-parser');
+const express = require('express');
+const app = express();
+
+const stringToNumber = require('../tools/stringToNumber');
 
 let cache = {};
 const redisTtl = (stringToNumber(process.env.REDIS_TTL) || 24) * 60 * 60;
 
-const subscriber = require('redis').createClient(process.env.REDIS_URL);
-const publisher = require('redis').createClient(process.env.REDIS_URL);
+const subscriber = redis.createClient(process.env.REDIS_URL);
+const publisher = redis.createClient(process.env.REDIS_URL);
 
 subscriber.subscribe('vk_commands');
 subscriber.on('message', (channel, message) => {
@@ -38,10 +33,11 @@ function getPhotos(id) {
 
     startTime = Math.floor((startTime - timeOffset) / 1000);
 
-    const apiUrl = `https://api.vk.com/method/photos.get?owner_id=${id}&album_id=wall&extended=1&limit=50&rev=1`;
-    return axios.get(apiUrl)
+    return axios
+        .get(`https://api.vk.com/method/photos.get?owner_id=${id}&album_id=wall&extended=1&limit=50&rev=1`)
         .then((response) => {
             let resultMemes = [];
+
             response.data.response.forEach((item) => {
                 if (item.created > startTime) {
                     resultMemes.push({
@@ -52,6 +48,7 @@ function getPhotos(id) {
                     });
                 }
             });
+
             return resultMemes;
         })
         .catch((error) => {
@@ -63,27 +60,32 @@ function getTop(limit = 100) {
     let allMemes = [];
     let allPromises = [];
 
-    return updateSources('vk').then((sources) => {
-        sources.forEach((id) => {
-            allPromises.push(getPhotos(id));
-        });
-
-        return Promise.all(allPromises).then((results) => {
-            results.forEach((result) => {
-                allMemes = allMemes.concat(result);
+    return updateSources('vk')
+        .then((sources) => {
+            sources.forEach((id) => {
+                allPromises.push(getPhotos(id));
             });
 
-            return allMemes.sort((a, b) => {
-                if (a.likes > b.likes) {
-                    return -1;
-                }
-                if (a.likes < b.likes) {
-                    return 1;
-                }
-                return 0;
-            }).slice(0, limit);
-        });
-    });
+            return Promise
+                .all(allPromises)
+                .then((results) => {
+                    results.forEach((result) => {
+                        allMemes = allMemes.concat(result);
+                    });
+
+                    return allMemes.sort((a, b) => {
+                        if (a.likes > b.likes) {
+                            return -1;
+                        }
+
+                        if (a.likes < b.likes) {
+                            return 1;
+                        }
+
+                        return 0;
+                    }).slice(0, limit);
+                });
+            });
 }
 
 function getVkMeme() {
@@ -134,8 +136,7 @@ function buildCache() {
     getTop(200).then((top) => {
         top.forEach((meme) => {
             isCached(meme.id)
-                .then(() => {
-                })
+                .then(() => {})
                 .catch(() => {
                     cache[meme.id] = meme.src;
                 });
@@ -158,16 +159,15 @@ function safeJSONParse(json) {
 function updateSources(channel) {
     let sources = [];
 
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         publisher.hkeys(channel, (err, value) => {
             if (value) {
                 value.forEach((source, i) => {
                     sources.push(source);
                 });
-                resolve(sources);
-            } else {
-                reject(groupIds);
             }
+
+            resolve(sources);
         });
     });
 }
@@ -180,14 +180,10 @@ setTimeout(() => {
     }, process.env.REQUEST_INTERVAL_MIN * 60 * 1000);
 }, parseInt(process.env.START_TIMEOUT_MIN, 10) * 60 * 1000);
 
-const bodyParser = require('body-parser');
-const express = require('express');
-const app = express();
-
 app.use(bodyParser.json());
-app.post('/validate',(req, res) => {
-    const apiUrl = `https://api.vk.com/method/groups.getById?group_id=${req.body.source}`;
-    return axios.get(apiUrl)
+app.post('/validate', (req, res) => {
+    return axios
+        .get(`https://api.vk.com/method/groups.getById?group_id=${req.body.source}`)
         .then((result) => {
             let responseData = {
                 exists: !!(result &&
@@ -209,4 +205,3 @@ app.post('/validate',(req, res) => {
 app.listen(9003, () => {
     console.log('VK Web App 9003');
 });
-

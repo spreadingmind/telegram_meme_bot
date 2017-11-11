@@ -1,4 +1,5 @@
 require('dotenv').config({ silent: true });
+
 const Redis = require('redis');
 
 const Telegraf = require('telegraf');

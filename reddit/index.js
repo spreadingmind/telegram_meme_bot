@@ -1,9 +1,13 @@
 require('dotenv').config({ silent: true });
-const redisClient = require('redis').createClient(process.env.REDIS_URL);
-const redisChannel = process.env.REDIS_CHANNEL;
+
 const snoowrap = require('snoowrap');
+const bodyParser = require('body-parser');
+const app = require('express')();
+const redisWorker = require('../tools/redisWorker');
 const stringToNumber = require('../tools/stringToNumber');
-const redisTtl = (stringToNumber(process.env.REDIS_TTL) || 24) * 60 * 60;
+
+const redis = new redisWorker(process.env.REDIS_URL, stringToNumber(process.env.REDIS_TTL) || 24);
+const redisChannel = process.env.REDIS_CHANNEL;
 
 const redditApp = new snoowrap({
     userAgent: process.env.reddit_agent,
@@ -14,71 +18,76 @@ const redditApp = new snoowrap({
 });
 
 function getTops(subr) {
-    return redditApp.getSubreddit(subr).getTop({ time: 'hour' }).catch((error) => {
-        console.error(error);
-        return Promise.resolve([]);
-    });
-}
-
-
-function getRedditChannels() {
-    return new Promise((resolve) => {
-        redisClient.hkeys('reddit', (err, data) => {
-            resolve(data);
+    return redditApp
+        .getSubreddit(subr)
+        .getTop({ time: 'hour' })
+        .catch((error) => {
+            console.error(error);
+            return Promise.resolve([]);
         });
-    });
 }
 
 function getAll(channels) {
+    if (!channels || !channels.length) {
+        return Promise.resolve([]);
+    }
     let promises = [];
     let allMemes = [];
 
     channels.forEach((item) => {
         promises.push(getTops(item));
     });
-    return Promise.all(promises)
+
+    return Promise
+        .all(promises)
         .then((result) => {
             result.forEach((meme) => {
                 allMemes = allMemes.concat(meme);
             });
+
             allMemes = allMemes
                 .map((meme) => {
                     return {
                         id: meme.id,
-                        url: meme.url
+                        url: meme.url,
                     };
                 });
+
             return allMemes;
         });
 }
 
 function sortAndPush() {
-    getRedditChannels().then((channels) => {
-        getAll(channels).then((topmemes) => {
-            defineTop(topmemes);
+    redis.getSources('reddit')
+        .then((channels) => {
+            getAll(channels)
+                .then((topmemes) => {
+                    if (!topmemes.length) {
+                        return;
+                    }
+                    defineTop(topmemes);
 
-            // request timeout
-            setTimeout(() => {
-                sortAndPush();
-            }, parseInt(process.env.REQUEST_INTERVAL_MIN, 10) * 60 * 1000);
-        });
-    });
-
+                    // request timeout
+                    setTimeout(() => {
+                        sortAndPush();
+                    }, parseInt(process.env.REQUEST_INTERVAL_MIN, 10) * 60 * 1000);
+                });
+            });
 }
-
 
 function defineTop(values) {
     if (!values.length) {
         return;
     }
-    isCached(values[0].id)
+
+    redis.exists(`reddit_${values[0].id}`)
         .then((cached) => {
             if (cached) {
                 values.shift();
                 defineTop(values);
             } else {
-                cache(values[0]);
-                publish(values[0].url);
+                redis.cache(values[0].id, values[0].url);
+                redis.publish(redisChannel, values[0].url);
             }
         })
         .catch((error) => {
@@ -86,30 +95,10 @@ function defineTop(values) {
         });
 }
 
-function isCached(id) {
-    return new Promise((resolve, reject) => {
-        redisClient.get(`reddit_${id}`, (err, value) => {
-            resolve(!!value);
-        });
-    });
-}
-
-function cache(message) {
-    redisClient.set(`reddit_${message.id}`, JSON.stringify(message), 'EX', redisTtl);
-}
-
-function publish(message) {
-    redisClient.publish(redisChannel, JSON.stringify({ text: message}));
-}
-
 // start timeout
 setTimeout(() => {
     sortAndPush();
 }, parseInt(process.env.START_TIMEOUT_MIN, 10) * 60 * 1000);
-
-const bodyParser = require('body-parser');
-const express = require('express');
-const app = express();
 
 app.use(bodyParser.json());
 app.post('/validate', (req, res) => {
