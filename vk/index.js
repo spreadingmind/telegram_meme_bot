@@ -41,7 +41,7 @@ function getPhotos(id) {
 
     startTime = Math.floor((startTime - timeOffset) / 1000);
 
-    const apiUrl = `https://api.vk.com/method/photos.get?owner_id=${id}&album_id=wall&extended=1&limit=50&rev=1`;
+    const apiUrl = `https://api.vk.com/method/photos.get?owner_id=${id}&album_id=wall&extended=1&limit=50&rev=1&v=4.104`;
     return axios.get(apiUrl)
         .then((response) => {
             let resultMemes = [];
